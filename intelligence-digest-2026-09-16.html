@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intelligence Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+
+<style>
+:root{
+  --paper:#EDEFF2; --surface:#FFFFFF; --surface-2:#F5F7F9;
+  --ink:#12171D; --ink-soft:#39434E; --muted:#5F6B78;
+  --rule:#D3D9E1; --rule-soft:#E3E7EC;
+  --signal:#0C6E5F; --signal-soft:#DDEEEA;
+  --flag:#A8331C; --flag-soft:#F7E4DF;
+  --ochre:#8A6510; --ochre-soft:#F5ECD7;
+  --brand:#DB1512; --brand-soft:#FBE7E4;
+  --shadow:0 1px 2px rgba(18,23,29,.06),0 8px 24px rgba(18,23,29,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1215; --surface:#141B20; --surface-2:#1A2229;
+    --ink:#E7EBEA; --ink-soft:#C1CACB; --muted:#8D9AA0;
+    --rule:#26313A; --rule-soft:#1E272E;
+    --signal:#4CC4AC; --signal-soft:#12312C;
+    --flag:#E08571; --flag-soft:#331913;
+    --ochre:#D8AC50; --ochre-soft:#2E2513;
+    --brand:#F0463F; --brand-soft:#2A1210;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1215; --surface:#141B20; --surface-2:#1A2229;
+  --ink:#E7EBEA; --ink-soft:#C1CACB; --muted:#8D9AA0;
+  --rule:#26313A; --rule-soft:#1E272E;
+  --signal:#4CC4AC; --signal-soft:#12312C;
+  --flag:#E08571; --flag-soft:#331913;
+  --ochre:#D8AC50; --ochre-soft:#2E2513;
+  --brand:#F0463F; --brand-soft:#2A1210;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:17.5px;line-height:1.72;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px 110px}
+h1,h2,h3,h4,.eyebrow,.num,th,.tag{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono,.dnum,td.n,.tag{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-variant-numeric:tabular-nums}
+
+.brand{display:flex;align-items:center;gap:20px;padding:34px 0 26px;border-bottom:1px solid var(--rule)}
+.brand .id{display:flex;align-items:center;gap:20px;flex:1 1 auto;min-width:0}
+.brand img{width:104px;height:auto;flex:0 0 auto;display:block}
+.brand .pub{font-family:Archivo,sans-serif;font-weight:700;font-size:clamp(26px,3.4vw,36px);
+  letter-spacing:-.022em;margin:0;line-height:1.05;color:var(--ink)}
+.brand .pubsub{margin:7px 0 0;font-size:15.5px;color:var(--muted);display:flex;align-items:center;gap:9px}
+.brand .tri{color:var(--brand);font-size:12px;line-height:1}
+@media(max-width:560px){.brand{gap:14px}.brand .id{gap:14px}.brand img{width:74px}}
+
+/* theme switch */
+.themetog{flex:0 0 auto;display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  background:var(--surface);color:var(--ink-soft);border:1px solid var(--rule);
+  border-radius:999px;padding:8px 15px 8px 12px;font-family:Archivo,sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  transition:border-color .15s ease,color .15s ease,background .15s ease}
+.themetog:hover{border-color:var(--signal);color:var(--ink)}
+.themetog:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+.themetog svg{width:16px;height:16px;display:block;flex:0 0 auto}
+.themetog .ico-sun{display:none}
+.themetog .ico-moon{display:block}
+.themetog[data-mode="dark"] .ico-sun{display:block}
+.themetog[data-mode="dark"] .ico-moon{display:none}
+.themetog .lbl-dark{display:inline}
+.themetog .lbl-light{display:none}
+.themetog[data-mode="dark"] .lbl-dark{display:none}
+.themetog[data-mode="dark"] .lbl-light{display:inline}
+@media(max-width:640px){.themetog .lbl-dark,.themetog .lbl-light{display:none!important}
+  .themetog{padding:9px;border-radius:50%}}
+
+.mast{padding:42px 0 34px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:20px}
+.mast .eyebrow{font-size:12px;letter-spacing:.17em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.mast h1{font-size:clamp(38px,6vw,66px);line-height:1.03;margin:0;font-weight:700;
+  letter-spacing:-.023em;text-wrap:balance;max-width:20ch}
+.mast .sub{font-size:20px;color:var(--ink-soft);margin:0}
+
+section{padding:56px 0;border-bottom:1px solid var(--rule-soft)}
+.sec-head{display:flex;gap:18px;align-items:baseline;margin-bottom:12px}
+.sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--signal);
+  font-weight:600;padding-top:7px;flex:0 0 auto}
+.sec-head h2{font-size:clamp(26px,3.6vw,37px);margin:0;font-weight:700;
+  letter-spacing:-.019em;text-wrap:balance}
+.deck{color:var(--muted);font-size:18px;margin:0 0 32px 48px}
+@media(max-width:620px){.deck{margin-left:0}}
+.body{max-width:none}
+/* text column sits 15% narrower than the container; tables and panels stay full width */
+.body > p, .body > h3, .read, .plain, .deck, .mast .sub{max-width:85%}
+@media(max-width:900px){.body > p, .body > h3, .read, .plain, .deck, .mast .sub{max-width:none}}
+.body h3{font-size:22px;font-weight:700;margin:38px 0 14px;letter-spacing:-.014em;text-wrap:balance}
+.body h3:first-child{margin-top:0}
+p{margin:0 0 18px}
+strong{font-weight:600}
+a{color:var(--signal);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+.read{border-left:3px solid var(--signal);background:var(--signal-soft);
+  padding:18px 24px;margin:24px 0 26px;font-size:17px}
+.read .lb{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--signal);font-weight:700;margin-bottom:7px;font-family:Archivo,sans-serif}
+.read p:last-child{margin-bottom:0}
+
+.plain{border:1px solid var(--rule);background:var(--surface-2);
+  padding:18px 24px;margin:24px 0 26px;font-size:16.5px;color:var(--ink-soft)}
+.plain .lb{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;margin-bottom:7px;font-family:Archivo,sans-serif}
+.plain p:last-child{margin-bottom:0}
+
+.pullnum{display:flex;flex-wrap:wrap;border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);margin:30px 0}
+.pn{flex:1 1 220px;padding:18px 24px 16px 0;margin-right:24px;border-right:1px solid var(--rule-soft)}
+.pn:last-child{border-right:none;margin-right:0}
+.dnum{font-size:25px;font-weight:600;display:block;line-height:1.15;color:var(--ink)}
+.dlab{font-size:15px;color:var(--muted);display:block;margin-top:5px;line-height:1.45}
+
+.tension{border:1px solid var(--rule);background:var(--surface);margin:28px 0;box-shadow:var(--shadow)}
+.tension .q{padding:17px 24px;border-bottom:1px solid var(--rule-soft);
+  font-family:Archivo,sans-serif;font-weight:600;font-size:18px}
+.tension .sides{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:760px){.tension .sides{grid-template-columns:1fr}}
+.tension .side{padding:19px 24px;font-size:16.5px;color:var(--ink-soft)}
+.tension .side:first-child{border-right:1px solid var(--rule-soft)}
+@media(max-width:760px){.tension .side:first-child{border-right:none;border-bottom:1px solid var(--rule-soft)}}
+.tension .side .h{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ochre);
+  font-weight:600;display:block;margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase}
+.tension .side p{margin:0 0 12px}
+.tension .side p:last-child{margin:0}
+.tension .why{padding:17px 24px;border-top:1px solid var(--rule-soft);
+  background:var(--ochre-soft);font-size:16px}
+.tension .why b{color:var(--ochre);font-weight:700;font-family:Archivo,sans-serif;font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:6px}
+
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surface);margin:26px 0}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:15.5px;line-height:1.55}
+th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding:13px 18px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+td{padding:13px 18px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.co{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;width:200px}
+td.n{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink-soft);white-space:nowrap}
+td.lab{font-family:Archivo,sans-serif;font-weight:600;font-size:14.5px;width:230px}
+.grp td{background:var(--surface-2);font-family:Archivo,sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--signal);padding:10px 18px}
+caption{caption-side:top;text-align:left;font-family:Archivo,sans-serif;font-weight:600;
+  font-size:14px;color:var(--muted);padding:0 0 10px}
+
+.glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:0 34px}
+.g{padding:13px 0;border-top:1px solid var(--rule-soft);font-size:16px}
+.g b{font-family:Archivo,sans-serif;font-weight:600;display:block;font-size:14.5px}
+.g span{color:var(--muted)}
+.foot{padding:44px 0 0;font-size:14.5px;color:var(--muted);max-width:90ch}
+
+.disclaimer{margin-top:30px;border:1px solid var(--rule);border-top:3px solid var(--brand);
+  background:var(--surface);padding:26px 30px 28px;box-shadow:var(--shadow)}
+.disclaimer .dh{display:flex;align-items:center;gap:11px;margin-bottom:15px}
+.disclaimer .dh::before{content:"";width:22px;height:2px;background:var(--brand);flex:0 0 auto}
+.disclaimer .dh span{font-family:Archivo,sans-serif;font-weight:700;font-size:11.5px;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--brand)}
+.disclaimer p{font-size:15.5px;line-height:1.72;color:var(--ink-soft);margin:0;max-width:104ch}
+.disclaimer p strong{color:var(--ink);font-weight:600}
+@media(max-width:560px){.disclaimer{padding:20px 20px 22px}}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 9px;background:var(--flag-soft);color:var(--flag);margin-bottom:16px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<style>
+.co-name{color:var(--signal);font-weight:600}
+.bars{margin:26px 0;border:1px solid var(--rule);background:var(--surface);padding:20px 24px 16px}
+.bars .bt{font-family:Archivo,sans-serif;font-weight:600;font-size:13.5px;color:var(--muted);margin:0 0 16px;max-width:none}
+.bar{display:grid;grid-template-columns:minmax(120px,1.15fr) minmax(0,3fr) 68px;gap:12px;align-items:center;margin-bottom:11px;font-size:14.5px}
+.bar:last-child{margin-bottom:0}
+.bar .bl{font-family:Archivo,sans-serif;font-weight:600;font-size:13.5px;line-height:1.3}
+.bar .bw{background:var(--surface-2);height:15px;border-radius:2px;overflow:hidden}
+.bar .bf{height:100%;background:var(--signal);border-radius:2px;display:block}
+.bar .bf.alt{background:var(--ochre)}
+.bar .bf.neg{background:var(--flag)}
+.bar .bv{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.bar{grid-template-columns:minmax(96px,1fr) minmax(0,2fr) 58px;gap:8px;font-size:13px}}
+.chain{display:flex;flex-wrap:wrap;margin:26px 0;border:1px solid var(--rule);background:var(--surface);overflow:hidden}
+.chain .cs{flex:1 1 168px;padding:16px 18px;border-right:1px solid var(--rule-soft)}
+.chain .cs:last-child{border-right:none}
+.chain .cs .ck{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--signal);font-weight:600;display:block;margin-bottom:6px;letter-spacing:.08em}
+.chain .cs .cx{font-size:14.5px;line-height:1.45;color:var(--ink-soft);display:block}
+.chain .cs .cx b{color:var(--ink);font-weight:600}
+@media(max-width:640px){.chain .cs{flex:1 1 100%;border-right:none;border-bottom:1px solid var(--rule-soft)}.chain .cs:last-child{border-bottom:none}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0}
+.card{background:var(--surface);padding:16px 18px}
+.card .cu{font-size:11px;color:var(--signal);font-family:Archivo,sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:8px}
+.card .cv{font-family:"IBM Plex Mono",monospace;font-size:23px;font-weight:600;display:block;line-height:1.1;color:var(--ink);font-variant-numeric:tabular-nums}
+.card .cl{font-size:14px;color:var(--muted);display:block;margin-top:6px;line-height:1.4}
+td.up{color:var(--signal);font-weight:600}
+td.dn{color:var(--flag);font-weight:600}
+.note{border-left:3px solid var(--brand);background:var(--brand-soft);padding:14px 20px;margin:0 0 24px;font-size:15.5px;color:var(--ink-soft)}
+.note p{margin:0}
+.mast{padding:36px 0 30px;gap:14px}
+.mast h1{font-size:clamp(25px,2.9vw,33px);line-height:1.18;max-width:34ch}
+.mast .sub{font-size:17.5px}
+.dateline{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted);margin:0}
+.sec-head h2{font-size:clamp(20px,2.2vw,25px)}
+.body h3{font-size:18.5px}
+.deck{font-size:16.5px;margin:0 0 28px 42px}
+body{font-size:17px;line-height:1.68}
+section{padding:44px 0;scroll-margin-top:24px}
+.body > p, .body > h3, .body > ul, .deck, .mast .sub{max-width:72%}
+.body > ul{padding-left:22px;margin:0 0 18px}
+.body > ul li{margin-bottom:8px}
+@media(max-width:900px){.body > p, .body > h3, .body > ul, .deck, .mast .sub{max-width:none}}
+@media(max-width:620px){.deck{margin-left:0}}
+table{min-width:620px}
+.layout{display:grid;grid-template-columns:172px minmax(0,1fr);gap:0 44px;align-items:start}
+.toc{position:sticky;top:20px;padding:44px 0 0;font-family:Archivo,sans-serif}
+.toc .tl{font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 11px;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc a{display:grid;grid-template-columns:20px 1fr;gap:7px;padding:5px 0;font-size:12px;line-height:1.38;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--rule-soft)}
+.toc a:hover{color:var(--ink)}
+.toc a .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--signal);padding-top:1px}
+.toc a.on,.toc a.on .k{color:var(--ink);font-weight:600}
+@media(max-width:1000px){.layout{grid-template-columns:1fr;gap:0}.toc{display:none}}
+.main{min-width:0}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<div class="brand">
+  <div class="id">
+  <img src="data:image/png;base64,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" alt="Normal Guy">
+  <div>
+    <p class="pub">Intelligence Digest</p>
+    <p class="pubsub"><span class="tri">&#9656;</span> Markets and industry, explained in plain language</p>
+  </div>
+  </div>
+  <button class="themetog" id="themetog" type="button" aria-label="Switch theme">
+    <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1Z"/>
+    </svg>
+    <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2"/>
+      <path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+    </svg>
+    <span class="lbl-dark">Dark</span><span class="lbl-light">Light</span>
+  </button>
+</div>
+
+<header class="mast">
+  <span class="eyebrow">Working analysis</span>
+  <p class="dateline">16 September 2026</p>
+  <h1>An oil shock is becoming a borrowing-cost shock, and India starts charging for UPI</h1>
+  <p class="sub">Record diesel prices, a US Federal Reserve expected to raise rates, weak demand for long US bonds, margin calls in Indian small caps, a new fee on large UPI shop payments, and a push to list Tata Sons.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+<p class="tl">Contents</p>
+<ol>
+<li><a href="#s01"><span class="k">01</span><span>Oil to rates</span></a></li>
+<li><a href="#s02"><span class="k">02</span><span>Physical limits</span></a></li>
+<li><a href="#s03"><span class="k">03</span><span>Bonds and dollars</span></a></li>
+<li><a href="#s04"><span class="k">04</span><span>Exports and trade</span></a></li>
+<li><a href="#s05"><span class="k">05</span><span>UPI and new rules</span></a></li>
+<li><a href="#s06"><span class="k">06</span><span>Where value sits</span></a></li>
+<li><a href="#s07"><span class="k">07</span><span>How India spends</span></a></li>
+<li><a href="#s08"><span class="k">08</span><span>Story vs numbers</span></a></li>
+<li><a href="#s09"><span class="k">09</span><span>Global comparison</span></a></li>
+<li><a href="#s10"><span class="k">10</span><span>Open arguments</span></a></li>
+<li><a href="#s11"><span class="k">11</span><span>Company list</span></a></li>
+<li><a href="#s12"><span class="k">12</span><span>Words explained</span></a></li>
+</ol>
+</nav>
+<div class="main">
+<section id="s01">
+<div class="sec-head"><span class="num">01</span><h2>An oil shock is turning into a borrowing-cost shock</h2></div>
+<p class="deck">The war in West Asia started as an energy story. It is now changing what money costs, from Washington to small-cap India.</p>
+<div class="body">
+<p>The fighting that began in February, when the US and Israel struck Iran, has moved to the Red Sea. Attacks hit the <span class="co-name">Saudi Aramco</span> East-West pipeline, which carries crude across Saudi Arabia to the port of Yanbu. On 15 September Saudi Arabia stopped loading oil at Yanbu, a port that can ship up to 5 million barrels a day. Brent crude, the main world oil price, moved towards $110 a barrel, and the US price went above $105, up 57% since 2 July.</p>
+<p>Diesel is where the pain is sharpest. US diesel hit a record $6.26 a gallon, up over 80% in 9 months, and on world markets it traded above $200 a barrel. Diesel moves trucks, ships, farm machines and mines, so a diesel spike reaches the price of almost everything, which is why central banks are reacting.</p>
+<p>The US Federal Reserve, led by Kevin Warsh, was priced at a 93% chance of raising its rate, its first hike since July 2023. That is the twist: President Trump appointed Warsh expecting cuts. The European Central Bank has already raised rates for the 2nd time this year. Long-term borrowing costs jumped too: the UK 30-year gilt (a British government bond) hit 5.95%, its highest since 1998, and Japanese yields hit a 30-year high.</p>
+<p>India felt it through leverage, meaning money borrowed to buy shares. On 15 September over 900 Indian stocks fell 3% or more, the first such day since May. A microcap index fell about 7% in under 24 hours, from 26,800 to 25,100. Brokers issued margin calls (demands for more cash when loans against shares go bad), so owners sold even their steady shares to cover the losses in risky ones. The Nifty 50 touched a 5-month low.</p>
+<div class="chain">
+<div class="cs"><span class="ck">STEP 1</span><span class="cx">Attacks near <b>Yanbu</b> and the East-West pipeline cut Saudi exports</span></div>
+<div class="cs"><span class="ck">STEP 2</span><span class="cx"><b>Diesel</b> hits records; freight, farming and mining costs rise</span></div>
+<div class="cs"><span class="ck">STEP 3</span><span class="cx">Inflation fears push the <b>Fed</b> and ECB towards hikes</span></div>
+<div class="cs"><span class="ck">STEP 4</span><span class="cx">Long bond yields jump; <b>borrowed money</b> gets dearer everywhere</span></div>
+<div class="cs"><span class="ck">STEP 5</span><span class="cx"><b>Margin calls</b> force selling in Indian small and micro caps</span></div>
+</div>
+</div>
+</section>
+<section id="s02">
+<div class="sec-head"><span class="num">02</span><h2>Physical limits that money cannot fix fast</h2></div>
+<p class="deck">Refining, memory chips, missiles and grid approvals are all short at once, and each one takes years to build more of.</p>
+<div class="body">
+<h3>Diesel is short because of refining, not only crude</h3>
+<p>Crude oil must be refined before a truck can burn it. The gap between the price of diesel and the price of crude, called the crack spread, hit a record. Russia, the 2nd-biggest diesel exporter, has already stopped exports and is weighing a longer ban. The US, the biggest exporter, is now discussing its own ban; Senate leader John Thune said he is open to it. <span class="co-name">Barclays</span> warned such a ban could backfire, because other countries would then bid even harder for the fuel. </p>
+<p>US Energy Secretary Chris Wright said the government may use the Defense Production Act, an emergency law, to add refining capacity.</p>
+<p>The US emergency stock is thin too. The Strategic Petroleum Reserve, the crude the government keeps for a crisis, fell another 403,000 barrels to 285 million, its lowest since 1982. Flow through the Strait of Hormuz, the channel between Iran and Oman that carries much of the Gulf's oil, is averaging 11 million barrels a day. <span class="co-name">Saudi Aramco</span> is trying to restore half of the East-West pipeline within days after 3 pumping stations were hit, and oil prices eased on that report.</p>
+<h3>Memory chips are the other squeeze</h3>
+<p>Tim Cook of <span class="co-name">Apple</span> called memory pricing a "100-year flood". Apple raised prices by $100 on 4 iPhones already on sale with the same hardware, so the 2TB iPhone 18 Pro Max now costs $500 more than the model it replaced. Cheap phones are hit harder, so in India phones under ₹10,000 are disappearing (see section 07).</p>
+<div class="tw"><table>
+<caption>Where supply is tight, and why it cannot be fixed quickly</caption>
+<thead><tr><th>Constraint</th><th>The number</th><th>Why it lasts</th></tr></thead>
+<tbody>
+<tr><td class="lab">Diesel refining</td><td>Crack spread at a record; Russia exports halted</td><td>New refineries take years; the US may use emergency powers</td></tr>
+<tr><td class="lab">US oil reserve</td><td>285 million barrels, lowest since 1982</td><td>Refilling means buying at high prices</td></tr>
+<tr><td class="lab">Memory chips</td><td>iPhone storage upgrade 512GB to 1TB now costs $400, double</td><td>New memory factories take 2 to 3 years</td></tr>
+<tr><td class="lab">Missile defence</td><td>The US is burning through interceptors against Iranian attacks</td><td>Printing money does not print missiles</td></tr>
+<tr><td class="lab">Gulf cloud servers</td><td><span class="co-name">Amazon</span> says its cloud sites in Bahrain and the UAE are beyond saving</td><td>Data centres in a war zone cannot be insured or repaired quickly</td></tr>
+<tr><td class="lab">Local approvals</td><td>4 US towns paused new data centres, for 45 days to 18 months</td><td>Federal support does not override a town council</td></tr>
+<tr><td class="lab">Road building in Delhi</td><td>Bitumen up from ₹40,000 to ₹70,000–80,000 a tonne</td><td>Bitumen is made from crude; 200–250 km of repairs stalled</td></tr>
+<tr><td class="lab">Sulphuric acid</td><td>Russia bans exports to year-end; China already has</td><td>Basic chemical for dyes and fertiliser; buyers must switch suppliers</td></tr>
+</tbody></table></div>
+<p>The last row matters for India. <span class="co-name">Bodal Chemicals</span> makes sulphuric acid at Padra (2.26 lakh tonnes a year) and Saykha (3.34 lakh tonnes), so an Indian maker with its own acid gains when foreign supply is cut off.</p>
+</div>
+</section>
+<section id="s03">
+<div class="sec-head"><span class="num">03</span><h2>Bond buyers are asking for more, and India is flush with dollars for now</h2></div>
+<p class="deck">US long bonds had their weakest sale in years, while an Indian deposit scheme filled banks with cash that the RBI now has to soak up.</p>
+<div class="body">
+<div class="cards">
+<div class="card"><span class="cu">US 20-year bond sale</span><span class="cv">5.42%</span><span class="cl">Highest since this bond was brought back in 2020; foreign buyers took a record-low 52.5%</span></div>
+<div class="card"><span class="cu">US 30-year mortgage</span><span class="cv">7.22%</span><span class="cl">Highest since May 2024; up over 1 percentage point since February</span></div>
+<div class="card"><span class="cu">India bank deposits</span><span class="cv">17.76%</span><span class="cl">Yearly growth to 31 August, highest since 2019</span></div>
+<div class="card"><span class="cu">India interest bill</span><span class="cv">25%</span><span class="cl">Share of government revenue spent on interest, highest among big emerging economies (IMF)</span></div>
+</div>
+<h3>The US: a weak auction and a Fed boxed in</h3>
+<p>When the US Treasury sells bonds, it wants the price to land close to what the market expected. For the 20-year bond it missed by 2 basis points (0.02 of a percentage point), the biggest miss since December 2024, and the 5.42% yield is the highest since the bond was brought back in 2020. Foreign buyers took only 52.5%. </p>
+<p><span class="co-name">Goldman Sachs</span> and <span class="co-name">Rabobank</span> argue the Fed does not need to hike; <span class="co-name">JPMorgan</span> expects the S&amp;P 500 to fall 1.25% to 1.75% if it does not. Since 2022 the US 10-year yield has averaged 4.17%, double the 2.06% of the 10 years before.</p>
+<p>2 things did not follow the textbook. Higher US yields usually lift the dollar, but the dollar index has not risen. And gold usually rises in a war, but it fell as rates rose, because gold pays no interest. Chinese gold funds still added 11 tonnes in August, reaching 293 tonnes.</p>
+<h3>India: $136 billion arrived, and it is not all free</h3>
+<p>The RBI ran a dollar swap window that drew $136.37 billion; $127 billion of that came through FCNR(B), foreign-currency deposits from Indians abroad. Both figures are being quoted as "the FCNR number", but they measure different things. </p>
+<p>The inflow pushed deposit growth to 17.76%, while credit grew 19.08%. Sanjay Agarwal of <span class="co-name">CARE Ratings</span> says the jump from about 14% to 18% is "only because of FCNR". So the RBI is now draining cash through reverse repo auctions (where banks park spare money with the RBI) and ₹1 lakh crore of bond sales.</p>
+<p>The risk is timing. These are dollar deposits that must be repaid. If the rupee stays weak while foreign investors keep selling, which they have done for 5 straight days in the cash market, the cash cushion can become a bill. Measured in dollars, the Nifty 50 is back where it was 5 years ago.</p>
+</div>
+</section>
+<section id="s04">
+<div class="sec-head"><span class="num">04</span><h2>Exports jumped, but read the base and the price before cheering</h2></div>
+<p class="deck">India's August exports rose 26%, the war reshaped shipping routes, and rebuilding Saudi oil sites may send orders to Indian pipe makers.</p>
+<div class="body">
+<p>India's goods exports rose 26.1% in August to $43.81 billion, while imports rose 14.1% to $70.67 billion. The trade deficit (imports minus exports) narrowed to $26.86 billion, a 5-month low. It was the 5th straight month of double-digit export growth, and services exports added an estimated $38.87 billion.</p>
+<div class="bars">
+<p class="bt">Yearly growth in August exports, by product</p>
+<div class="bar"><span class="bl">Electronics</span><span class="bw"><span class="bf" style="width:100%"></span></span><span class="bv">+89.8%</span></div>
+<div class="bar"><span class="bl">Petroleum products</span><span class="bw"><span class="bf alt" style="width:70%"></span></span><span class="bv">+63.2%</span></div>
+<div class="bar"><span class="bl">Engineering goods</span><span class="bw"><span class="bf" style="width:28%"></span></span><span class="bv">+24.8%</span></div>
+<div class="bar"><span class="bl">Chemicals</span><span class="bw"><span class="bf" style="width:18%"></span></span><span class="bv">+16.3%</span></div>
+<div class="bar"><span class="bl">Pharma</span><span class="bw"><span class="bf" style="width:4%"></span></span><span class="bv">+3.8%</span></div>
+</div>
+<p>3 things flatter the headline. August last year was weak, with exports down 9.5%, so the base is low. Petroleum products rose mostly because fuel prices rose. Electronics imports also jumped 40% to $13.65 billion, so much of the phone export is assembly of bought-in parts.</p>
+<p>Still, 68 of 168 product groups grew in both value and physical volume, so part of the growth is real extra output, not just higher prices. Gold imports fell 58% to $2.3 billion after a duty hike, which also helped the deficit.</p>
+<h3>Rice shows how the war moves goods</h3>
+<p>Rice, India's biggest farm export, grew only 2.17% to $4.81 billion in April to August. Ports in Iraq, Kuwait, Bahrain, Qatar, Dammam and Jebel Ali are disrupted, Jeddah has faced Houthi attacks, and ships now route through Sohar and Muscat in Oman and Khor Fakkan in the UAE. Gulf buyers are purchasing only what they need now, because freight is dear.</p>
+<h3>Who could get paid for rebuilding</h3>
+<p>If Saudi oil and gas sites need rebuilding, pipe and project companies could get priority orders. The names being linked to this are <span class="co-name">Man Industries</span>, <span class="co-name">Maharashtra Seamless</span>, <span class="co-name">Welspun Corp</span>, <span class="co-name">Ratnamani Metals &amp; Tubes</span>, <span class="co-name">VA Tech Wabag</span> for water, <span class="co-name">Kalpataru Projects International</span> and <span class="co-name">Larsen &amp; Toubro</span>. This is an idea, not an order book yet, and 2 of them, Welspun Corp and VA Tech Wabag, fell about 8% to 10% in the 15 September sell-off.</p>
+<p>High crude helps producers. <span class="co-name">Antelopus Selan Energy</span> has risen on oil prices, and its bigger bet is the Duarmara field in Assam with Oilmax Energy, linked to <span class="co-name">Asian Energy Services</span>, guided at 6,200 barrels a day at peak. First output is due in FY27, after 1 delay.</p>
+</div>
+</section>
+<section id="s05">
+<div class="sec-head"><span class="num">05</span><h2>UPI gets a price tag, and the market sold the news</h2></div>
+<p class="deck">From 15 October some shops will pay a fee on large UPI payments. Customers still pay nothing, but the rule reshuffles who earns what.</p>
+<div class="body">
+<p>For the first time since 2020, <span class="co-name">NPCI</span>, which runs UPI, will charge a Merchant Discount Rate (MDR). An MDR is a small cut of each payment that a shop pays to the banks and apps that carry it. The rule: 0.4% on shop payments above ₹2,000, capped at ₹300 once a payment reaches ₹75,000. Person-to-person transfers stay free, and so do shops that receive under ₹1 lakh a month through UPI QR codes.</p>
+<div class="tw"><table>
+<caption>The new UPI fee map, from 15 October</caption>
+<thead><tr><th>Payment type</th><th>Fee</th><th>Who pays</th></tr></thead>
+<tbody>
+<tr><td class="lab">Person to person</td><td>Free, any amount</td><td>Nobody</td></tr>
+<tr><td class="lab">Shop payment up to ₹2,000</td><td>Free</td><td>Nobody</td></tr>
+<tr><td class="lab">Small shops (under ₹1 lakh a month)</td><td>Free</td><td>Nobody</td></tr>
+<tr><td class="lab">Shop payment above ₹2,000</td><td class="dn">0.4%, max ₹300</td><td>The shop</td></tr>
+<tr><td class="lab">Fuel, rail, telecom, power, insurance, tolls</td><td>Flat ₹5 per payment above ₹2,000</td><td>The seller</td></tr>
+<tr><td class="lab">Mutual funds, brokers, shares</td><td>0.02%, max ₹300</td><td>The receiving firm</td></tr>
+<tr><td class="lab">AutoPay (SIPs, subscriptions)</td><td>No set fee</td><td>Nobody</td></tr>
+</tbody></table></div>
+<p>The rule hits few payments but a lot of money. About 96% of shop payments are under ₹2,000, yet the ones above ₹2,000 carry about 67% of shop payment value. In August UPI handled 24.51 billion payments worth ₹29.82 lakh crore, an average of about ₹1,216 each.</p>
+<p>A widely shared breakdown of a ₹50,000 payment got the arithmetic wrong. It split ₹150 among the banks and apps and added ₹27 of GST. But 0.4% of ₹50,000 is ₹200, and 18% GST on that is ₹36, so the shop pays ₹236 and keeps ₹49,764. So the true cost to a shop is 47.2 basis points (0.472%) once GST is added, and some shops will try to pass it on.</p>
+<h3>How the market priced it</h3>
+<p>The likely winners earn this fee: <span class="co-name">Paytm</span>, <span class="co-name">Pine Labs</span>, <span class="co-name">Yes Bank</span> (partner bank for PhonePe), <span class="co-name">Axis Bank</span> (for Google Pay), <span class="co-name">State Bank of India</span>, <span class="co-name">ICICI Bank</span> and <span class="co-name">HDFC Bank</span>. <span class="co-name">Morgan Stanley</span> sees Paytm's profit estimates for FY28 and FY29 rising 38% to 48%.</p>
+<p>Yet Paytm and <span class="co-name">MobiKwik</span> fell after the news, because Paytm had already risen 71% in 6 months on this hope. Cash-handling firms <span class="co-name">CMS Info Systems</span> and <span class="co-name">Radiant Cash Management</span> were seen as winners if some shops return to cash; <span class="co-name">PPFAS Mutual Fund</span> bought 20 lakh CMS shares, taking its stake to 9.83%.</p>
+<p>Anger is loud. A petition in the Supreme Court challenges the fee, and the government has refused to back down. The Finance Ministry denied that foreign pressure shaped the rule.</p>
+<h3>Other rule changes</h3>
+<ul>
+<li><strong>EPFO:</strong> the wage ceiling for compulsory provident fund rises from ₹15,000 to ₹25,000 a month, bringing over 51 lakh more workers in, so take-home pay dips and savings rise.</li>
+<li><strong>Exports:</strong> shipments up to ₹3 lakh no longer need an RCMC (an exporter registration certificate), which helps first-time sellers.</li>
+<li><strong>Gold:</strong> the hallmarking fee rose 67%, from ₹45 to ₹75 per item.</li>
+<li><strong>Foreign investors:</strong> registration now takes 5 days instead of 30 or more.</li>
+<li><strong>Roads:</strong> the NHAI barred <span class="co-name">PNC Infratech</span> from new bids for 3 years after damage on the Kanpur-Lucknow Expressway.</li>
+</ul>
+</div>
+</section>
+<section id="s06">
+<div class="sec-head"><span class="num">06</span><h2>Where the value sits: good businesses at flat prices, and forced listings</h2></div>
+<p class="deck">Insurers grew while their shares stood still, Tata Sons is being pushed to list, and defence know-how is moving to private firms.</p>
+<div class="body">
+<h3>Insurance: the business grew, the price did not</h3>
+<p><span class="co-name">ICICI Prudential Life</span> shares cost about the same as in 2019, while its embedded value (an actuary's estimate of what its policies are worth to shareholders) rose about 2.5 times. <span class="co-name">HDFC Life</span> shares are lower, and its parent <span class="co-name">HDFC Bank</span>, which put in ₹1,000 crore at ₹688.52 a share in June, is already down 24%.</p>
+<p>The reason is rules, not results. Since 2023 almost every change moved money from shareholders to policy buyers. GST on individual policies went to zero in September 2025, but insurers lost the tax credit on their own costs, which cost HDFC Life about 3 percentage points of margin. From 1 January 2027 banks cannot force a policy on a loan customer.</p>
+<p>Owners are changing too. <span class="co-name">Prudential plc</span> must cut its ICICI Prudential stake from 21.9% to under 10%. Foreign funds cut HDFC Life from 25.6% to 19.3% while Indian mutual funds raised theirs from 10.6% to 16.6%, so these shares are moving from foreign money to SIP money.</p>
+<div class="tw"><table>
+<caption>Insurance: business growth against share price</caption>
+<thead><tr><th>Measure</th><th>Then</th><th>Now</th></tr></thead>
+<tbody>
+<tr><td class="lab">ICICI Prudential Life share price</td><td>₹463 (Sep 2019)</td><td>₹467</td></tr>
+<tr><td class="lab">ICICI Prudential Life embedded value</td><td>₹21,600 crore</td><td class="up">₹53,000 crore</td></tr>
+<tr><td class="lab">HDFC Life share price</td><td>₹601 (Sep 2019)</td><td class="dn">₹523</td></tr>
+<tr><td class="lab">Individual business growth, last quarter</td><td colspan="2">SBI Life 14%, ICICI Prudential 9%, HDFC Life 7%</td></tr>
+<tr><td class="lab">General insurers' claims and costs</td><td colspan="2">₹118 paid out for every ₹100 of premium in FY26</td></tr>
+<tr><td class="lab">Analysts rating Buy</td><td colspan="2">97% on SBI Life and HDFC Life, 100% on Max Financial</td></tr>
+</tbody></table></div>
+<p>The next test is the IRDAI paper on commissions. Reports say it sets only a direction, with no rates, from around April 2027, which helps <span class="co-name">PB Fintech</span>; deeper cuts for bank sellers would hurt <span class="co-name">Max Financial Services</span> and HDFC Life.</p>
+<p>PB Fintech kept ₹1,888 crore of revenue from ₹8,372 crore of premium in Q1 FY27, and adjusted EBITDA (profit before interest, tax and write-offs) more than doubled to ₹186 crore. Its engine is renewals, earned at about 80% margin and growing 55%.</p>
+<h3>Tata Sons must face a market price</h3>
+<p>On 11 September the RBI rejected <span class="co-name">Tata Sons</span>' request to give up its core investment company licence, which would have let it stay unlisted. It then filed a caveat in the Bombay High Court to block any surprise stay.</p>
+<p>The big winner is <span class="co-name">Shapoorji Pallonji Group</span>, which owns about 18.4% of Tata Sons, worth ₹2.5–3 lakh crore. It carries ₹55,000–60,000 crore of debt, partly refinanced at 18.95%, so a market price gives its lenders a clear value to lend against.</p>
+<h3>Defence know-how moves to private firms</h3>
+<p>At the VIMARSH meet, <span class="co-name">DRDO</span> handed 9 technology licences to 13 companies. <span class="co-name">Bharat Dynamics</span> and <span class="co-name">Apollo Micro Systems</span> will build a naval mine; <span class="co-name">Ananth Technologies</span> and Apollo will make laser seekers; <span class="co-name">Premier Explosives</span> and <span class="co-name">Solar Defence &amp; Aerospace</span> will make missile propellants. <span class="co-name">Mazagon Dock Shipbuilders</span> plans a ₹27,000 crore shipyard at Dighi, Raigad.</p>
+</div>
+</section>
+<section id="s07">
+<div class="sec-head"><span class="num">07</span><h2>Indian spending is splitting: the top trades up, the bottom borrows</h2></div>
+<p class="deck">Cheap phones are vanishing, car numbers look strong on a weak base, and more families are pledging gold to borrow.</p>
+<div class="body">
+<h3>The ₹10,000 phone is disappearing</h3>
+<p>Phone prices in India have nearly tripled in under 10 years, and as memory got dear, big brands left the cheap end. <span class="co-name">IDC</span> data shows phones under ₹10,000 fell 74.3% in Q2 2026, and their share of the market shrank from 15.6% to 4.5%. Yet that market is still 40–50 million buyers, far bigger than the roughly 30 million who buy high-end phones. </p>
+<p>So smaller brands like <span class="co-name">Itel</span> and <span class="co-name">Lava</span> are bringing back phones with only 2GB or 3GB of RAM at ₹8,000–9,000. People who want an iPhone buy a used one: refurbished phone sales grew 13% in H1 2026, and <span class="co-name">Apple</span> is 65.3% of <span class="co-name">Cashify</span>'s refurbished sales.</p>
+<h3>Vehicles: strong numbers, soft base</h3>
+<div class="tw"><table>
+<caption>August factory dispatches (SIAM) and what sits behind them</caption>
+<thead><tr><th>Segment</th><th>August units</th><th>Growth</th><th>Read with care</th></tr></thead>
+<tbody>
+<tr><td class="lab">Passenger vehicles</td><td>439,309</td><td class="up">+36.5%</td><td>August 2025 was weak as buyers waited for the late-September GST cut</td></tr>
+<tr><td class="lab">Two-wheelers</td><td>20.35 lakh</td><td class="up">+10.5%</td><td>Scooters did better, +24%</td></tr>
+<tr><td class="lab">Three-wheelers</td><td>93,764</td><td class="up">+22.8%</td><td>Last-mile transport demand</td></tr>
+<tr><td class="lab">Car exports</td><td>—</td><td class="dn">−17%</td><td>So the whole load sits on Indian buyers</td></tr>
+<tr><td class="lab">Electric goods vehicles, Jan–Aug</td><td>23,540</td><td class="up">+155%</td><td><span class="co-name">Tata Motors</span> 33% share, <span class="co-name">Euler Motors</span> 20%</td></tr>
+</tbody></table></div>
+<p>These are dispatches from factory to dealer, not sales to customers, so the real test is October retail sales around Diwali. A clear shift: CNG, electric and hybrid cars together now outsell petrol's 40.8% share for the first time, as high fuel and loan costs push buyers to cheaper running costs. <span class="co-name">JPMorgan</span> expects electric two-wheelers to rise from 7% of sales in FY26 to 20% by FY31.</p>
+<h3>Gold is becoming a loan</h3>
+<p>Indians have borrowed over ₹9 lakh crore against gold, and gold loans from NBFCs (non-bank lenders) rose 68.5% in a year. High gold prices let families borrow more, and so much borrowing shows many households need cash.</p>
+<h3>The wider pulse</h3>
+<p>GST collections grew 14.8% in August, but domestic GST grew only 9.3%; import-related tax did the rest. The manufacturing PMI (a monthly survey of factory activity where above 50 means growth) fell to 52.8, a 5-year low but still growth. Retail inflation stayed above the RBI's 4% target for a 3rd month. Unemployment eased to 5.0%, and job postings on <span class="co-name">Naukri</span> rose 14%, with AI jobs up 31%.</p>
+<p>At the top, <span class="co-name">State Bank of India</span> found 1.7 million customers with ₹2.4 lakh crore to invest. In mass brands, <span class="co-name">Dabur</span>'s profit grew from ₹1,448 crore in 2020 to ₹1,947 crore, slower than inflation.</p>
+</div>
+</section>
+<section id="s08">
+<div class="sec-head"><span class="num">08</span><h2>Where the story has run ahead of the numbers</h2></div>
+<p class="deck">AI valuations, IPO pricing and small-company order wins all need a second look at what has actually been earned.</p>
+<div class="body">
+<h3>AI: huge spending, thin proof so far</h3>
+<p><span class="co-name">OpenAI</span> is in early talks to raise money at over $1.2 trillion, up about 41% from $852 billion in March. Its Q2 revenue grew 18% to $6.7 billion, but its operating margin fell. <span class="co-name">Bank of America</span> notes that $1.5 trillion spent on AI in 3 years has shown little proof of economy-wide productivity gains so far. On the other side, Thomas Kurian of <span class="co-name">Google Cloud</span> says AI servers pay back in under 2 years, and in half that on Google's own chips, with most contracts locked for 5 years.</p>
+<p>Both can be true: the sellers of compute are earning, while the users of AI have not yet shown it in national data.</p>
+<p>The data-centre debate has 2 camps as well. Headlines say local bans are killing US building. <span class="co-name">SemiAnalysis</span> mapped over 300 local moratoriums (temporary bans): about 20 gigawatts of planned capacity sits inside restricted areas, but only about 1.5 gigawatts is actually delayed. It forecasts 18 GW of new US capacity in 2026 and 38 GW in 2027. Brad Gerstner of <span class="co-name">Altimeter Capital</span> expects only 25 GW next year and calls the AI trade "fully valued".</p>
+<div class="tw"><table>
+<caption>The story, and the number to check it against</caption>
+<thead><tr><th>The story</th><th>The number</th></tr></thead>
+<tbody>
+<tr><td class="lab">IPOs are hot</td><td>6 IPOs closing on 15 September sought ₹4,510 crore and drew bids of ₹1.39 lakh crore, about 31 times</td></tr>
+<tr><td class="lab"><span class="co-name">Hero Motors</span> rides the EV wave</td><td>Priced at 93 times FY26 profit; revenue grew 5.7% a year; 1 customer gives 36% of sales</td></tr>
+<tr><td class="lab"><span class="co-name">Kanohar Electricals</span> listed well</td><td>+8.5% on listing, about 42 times FY26 profit; the rerating depends on nearly doubling capacity to 37,200 MVA</td></tr>
+<tr><td class="lab"><span class="co-name">Kavveri Defence &amp; Wireless</span> won orders</td><td>₹22.2 crore of orders against almost no past revenue and a value near ₹400 crore</td></tr>
+<tr><td class="lab"><span class="co-name">Bikewo Green Tech</span> won a Reliance contract</td><td>₹66.46 crore to 2033, stated as estimated and not binding on <span class="co-name">Reliance Industries</span></td></tr>
+<tr><td class="lab"><span class="co-name">Ratnaveer Precision</span> enters circuit-board laminate</td><td>Target ₹750 crore from 5 lines; no past experience, reliance on Chinese technicians, earlier guidance missed</td></tr>
+<tr><td class="lab">Defence exports boom</td><td>₹686 crore in FY14 to ₹38,424 crore in FY26, over 56 times; +63% in the last year</td></tr>
+<tr><td class="lab">GDP growth drives share prices</td><td>Correlation between GDP growth and Nifty returns, FY19 to FY27: just 3.5%</td></tr>
+</tbody></table></div>
+<p><span class="co-name">NSE</span> itself is testing the IPO mood. Its issue opens on 17 September at ₹1,700–1,785, and its 189 anchor investors, likely a record by count, suggest heavy demand. CEO Ashishkumar Chauhan says the price leaves "some value on the table", and weekly options still bring about 42% of its revenue, so a rule change on options would hit its earnings directly.</p>
+<p><span class="co-name">Tempsens Instruments</span>, newly listed, grew revenue 33% to ₹118.71 crore, but its margin fell from 23.1% to 20.0% as staff costs rose from ₹14 crore to ₹20 crore, partly from adding subsidiaries.</p>
+</div>
+</section>
+<section id="s09">
+<div class="sec-head"><span class="num">09</span><h2>China builds, America argues, Europe pays more to borrow</h2></div>
+<p class="deck">The same technologies are being handled very differently, and India is picking partners in the gaps.</p>
+<div class="body">
+<p>In China, electric and hybrid cars now take 70.3% of retail car sales in September so far, while total car sales fell 23% from a year ago. EV sales fell only 10%, so most of the drop is in petrol and diesel cars. <span class="co-name">BYD</span> will spend about $100 million on a battery-storage factory in Brazil, because Brazil's grid-battery tender demands local production; <span class="co-name">CATL</span> and <span class="co-name">Jinko</span> have made similar plans. China's tech firms are also borrowing for AI: <span class="co-name">ByteDance</span> raised a $29.6 billion unsecured loan from about 30 banks.</p>
+<p>That is new for China, where lending is normally tied to land and buildings, not to computers that age in 3 years.</p>
+<p>In the US, AI has become an election issue. Dario Amodei of <span class="co-name">Anthropic</span> has called for pacing, meaning slowing the most powerful models until safety catches up. Mark Zuckerberg of <span class="co-name">Meta</span> answered that risks from new science are best met by speeding up, though Meta did delay its Muse agent by months for safety. Jensen Huang of <span class="co-name">Nvidia</span> said firms should not release products they doubt, but no new laws are needed. </p>
+<p>In Europe, French finance minister Roland Lescure called the slow-down talk a ploy by US labs to stay ahead, and a proposal says Europe needs 20 GW of data centres by 2028 and 100 GW by 2030.</p>
+<div class="tw"><table>
+<caption>4 economies, 4 different responses</caption>
+<thead><tr><th>Region</th><th>What it is doing</th><th>Consequence</th></tr></thead>
+<tbody>
+<tr><td class="lab">China</td><td>70% EV share; ByteDance's $29.6 billion AI loan; 256 of 324 SpaceSail satellites launched; the Pinglu Canal opened, saving a 560 km detour</td><td>More capital-heavy growth, funded by state-guided credit</td></tr>
+<tr><td class="lab">United States</td><td>$6 trillion of planned company investment in 2025–29, mostly data centres and grid; local building pauses; weighing a diesel export ban</td><td>Record retail sales alongside record-low consumer mood</td></tr>
+<tr><td class="lab">Europe</td><td>ECB hiking; Bank of England stops selling 20- and 30-year gilts; EU offers Canada "associate member" status</td><td>Higher borrowing costs just as it wants to build</td></tr>
+<tr><td class="lab">Japan</td><td>30-year yields at a record as defence spending may rise to 3.5% of GDP; traders now betting on a stronger yen</td><td>Japanese money may flow home from abroad</td></tr>
+</tbody></table></div>
+<h3>India's openings</h3>
+<p>Japan is expected to give 10–15% of India's space-tech business; <span class="co-name">Bellatrix Aerospace</span> already makes parts for 2 Japanese firms. New Zealand passed its law for the India trade deal, which cuts tariffs on about 95% of its exports to India from October. India and Canada may finish a deal by the end of 2026. <span class="co-name">Schaeffler India</span>'s chief Harsha Kadam says the EU deal will change little for his firm, because every European rival gets the same tariff cut.</p>
+<p>In batteries, the cathode is 42% of a cell's cost; <span class="co-name">Gujarat Fluorochemicals</span> and <span class="co-name">Himadri Speciality Chemical</span> lead Indian work, but for most players this is a story for FY29 and beyond.</p>
+</div>
+</section>
+<section id="s10">
+<div class="sec-head"><span class="num">10</span><h2>Arguments worth keeping open</h2></div>
+<p class="deck">Where careful people disagree, both sides are laid out with a way to check who is right.</p>
+<div class="body">
+<h3>Should UPI stay free for shops?</h3>
+<p>The case against the fee, made loudly by Ashneer Grover, is that UPI is public infrastructure that saves India money elsewhere. Handling cash through ATMs and cash vans is estimated to cost about ₹30,500 crore a year, so a fee that pushes even some shops back to cash could cost the country more than it raises. The government has also already paid about ₹8,700 crore in incentives across FY22 to FY25 to keep UPI free, which shows the system was never free to run.</p>
+<p>The case for the fee, made by the RBI and NPCI, is that UPI now handles 680–760 million payments a day, bank servers strain at festival peaks, and someone must pay for security and fraud checks. Vishwas Patel of the <span class="co-name">Payments Council of India</span> says the fee will fund the system rather than create profit pools.</p>
+<p>Former RBI deputy governor R. Gandhi suggested a digital rupee (CBDC) could let shops avoid the fee on large payments. The fair test comes after 15 October: if shop payments above ₹2,000 keep growing at the same pace, the friction argument weakens; if they fall while cash withdrawals rise, it wins.</p>
+<div class="tw"><table>
+<caption>Open questions, both sides, and how to settle them</caption>
+<thead><tr><th>Question</th><th>One side</th><th>The other side</th><th>How to settle it</th></tr></thead>
+<tbody>
+<tr><td class="lab">Does the Fed need to hike?</td><td>Diesel and oil are pushing inflation up; not hiking would be the biggest dovish surprise since 1994</td><td><span class="co-name">Goldman Sachs</span> and Rabobank say rates are already near neutral; US debt is about 123% of GDP, so higher rates widen the deficit</td><td>Watch the Fed's rate forecasts and whether the 10-year yield falls or rises after the decision</td></tr>
+<tr><td class="lab">Are payment stocks already priced for the fee?</td><td>Morgan Stanley sees Paytm's profit estimates up 38% to 48%</td><td>Paytm rose 71% in 6 months and fell on the news</td><td>Check revenue per payment in the December quarter results</td></tr>
+<tr><td class="lab">Is the car boom real?</td><td>Passenger vehicles +36.5%, scooters +24%</td><td>Weak base from delayed buying in 2025; dispatches, not sales; exports −17%</td><td>October retail registrations and dealer stock</td></tr>
+<tr><td class="lab">Did <span class="co-name">Solar Industries</span> pay well for Omnia?</td><td>Buys a 23-country mining-explosives platform with no net debt and new markets in Canada and Brazil</td><td>Paid a 30.98% premium, $1.35 billion in cash; shares fell 13.6% on leverage worry</td><td>Debt level and return on capital after the deal closes in mid-2027</td></tr>
+<tr><td class="lab">Are insurance shares cheap or a trap?</td><td>Embedded value compounds at 13–16% while price multiples sit near multi-year lows</td><td>Each rule change takes margin from shareholders; the commission paper is still pending</td><td>The IRDAI paper's final numbers, due by year end</td></tr>
+<tr><td class="lab">Is the small-cap fall a chance to buy?</td><td>Panics like a 7% microcap fall are when good companies get cheap</td><td>Leveraged selling spreads to stable pledged stocks; the Nifty 50 is 11.7% below its 2024 peak</td><td>Whether margin-trading loans shrink and foreign selling stops</td></tr>
+<tr><td class="lab">Why did gold fall during a war?</td><td>Rising interest rates make gold, which pays nothing, less attractive</td><td>Central banks, led by China, are buying more than they report</td><td>Real (inflation-adjusted) yields against central bank buying data</td></tr>
+</tbody></table></div>
+</div>
+</section>
+<section id="s11">
+<div class="sec-head"><span class="num">11</span><h2>Every company named, and why</h2></div>
+<p class="deck">A quick reference, grouped by sector, 1 line each.</p>
+<div class="body">
+<div class="note">
+  <p><strong>Note on this list.</strong> These companies appear here because they
+  were discussed or mentioned in the market conversation over the past 24 hours —
+  that is the only reason any of them is on this page. Appearing here is not a
+  view on the company or on its shares.</p>
+</div>
+<div class="tw"><table>
+<caption>Companies in this issue, by sector</caption>
+<thead><tr><th>Company</th><th>Why it came up</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="2">Payments and banks</td></tr>
+<tr><td class="co">NPCI</td><td>Sets the 0.4% UPI fee on shop payments above ₹2,000 from 15 October</td></tr>
+<tr><td class="co">Paytm</td><td>Morgan Stanley sees FY28–29 profit estimates up 38–48%; shares fell after a 71% rise in 6 months</td></tr>
+<tr><td class="co">Pine Labs</td><td>Adjusted profit estimates seen up 24–29% on the UPI fee</td></tr>
+<tr><td class="co">MobiKwik</td><td>Fell on the UPI fee news despite being a likely gainer</td></tr>
+<tr><td class="co">Yes Bank</td><td>Partner bank for PhonePe; profit before tax estimated 6–12% higher</td></tr>
+<tr><td class="co">Axis Bank</td><td>Partner bank for Google Pay</td></tr>
+<tr><td class="co">State Bank of India</td><td>Largest UPI user base; found 1.7 million wealth clients with ₹2.4 lakh crore to invest</td></tr>
+<tr><td class="co">ICICI Bank / HDFC Bank</td><td>Gain on both sides of UPI payments; HDFC Bank's ₹1,000 crore HDFC Life investment is down 24%</td></tr>
+<tr><td class="co">CMS Info Systems</td><td>Cash handler; PPFAS raised its stake to 9.83%</td></tr>
+<tr><td class="co">Radiant Cash Management</td><td>Cash handler seen gaining if shops return to cash</td></tr>
+<tr><td class="co">PPFAS Mutual Fund</td><td>Bought 20 lakh CMS Info Systems shares</td></tr>
+<tr><td class="co">Payments Council of India</td><td>Says the fee funds the system, not profit pools</td></tr>
+<tr class="grp"><td colspan="2">Insurance, exchanges and holding companies</td></tr>
+<tr><td class="co">ICICI Prudential Life</td><td>Share price flat since 2019 while embedded value rose to ₹53,000 crore</td></tr>
+<tr><td class="co">HDFC Life</td><td>Share fell from ₹601 to ₹523; GST change cost about 3 points of margin</td></tr>
+<tr><td class="co">SBI Life</td><td>Individual business grew 14%; 97% of analysts rate it Buy</td></tr>
+<tr><td class="co">Prudential plc</td><td>Must cut its ICICI Prudential stake from 21.9% to under 10%</td></tr>
+<tr><td class="co">Max Financial Services</td><td>Merging into Axis Max Life; seen hurt by deeper cuts to bank-seller commissions</td></tr>
+<tr><td class="co">PB Fintech</td><td>Renewal revenue ₹1,003 crore, growing 55%; seen gaining from a direction-only commission paper</td></tr>
+<tr><td class="co">NSE</td><td>IPO opens 17 September at ₹1,700–1,785; record 189 anchor investors</td></tr>
+<tr><td class="co">Tata Sons</td><td>RBI rejected its bid to stay unlisted</td></tr>
+<tr><td class="co">Shapoorji Pallonji Group</td><td>Owns about 18.4% of Tata Sons; debt refinanced at 18.95%</td></tr>
+<tr><td class="co">CARE Ratings</td><td>Says deposit jump is almost all from FCNR inflows</td></tr>
+<tr class="grp"><td colspan="2">Global banks and investors</td></tr>
+<tr><td class="co">Morgan Stanley</td><td>Raised profit views for Paytm and Pine Labs</td></tr>
+<tr><td class="co">Goldman Sachs</td><td>Says the Fed does not need to hike</td></tr>
+<tr><td class="co">Rabobank</td><td>Also says a Fed hike is not needed</td></tr>
+<tr><td class="co">JPMorgan</td><td>Sees S&amp;P 500 down 1.25–1.75% if no hike; sees Indian electric two-wheelers at 20% by FY31</td></tr>
+<tr><td class="co">Bank of America</td><td>$1.5 trillion AI spend with little proof of productivity gains yet</td></tr>
+<tr><td class="co">Barclays</td><td>Warns a US diesel export ban could backfire</td></tr>
+<tr><td class="co">Altimeter Capital</td><td>Expects 25 GW of new US data-centre capacity next year; calls AI trade fully valued</td></tr>
+<tr class="grp"><td colspan="2">Energy, chemicals and batteries</td></tr>
+<tr><td class="co">Saudi Aramco</td><td>East-West pipeline hit; Yanbu loadings stopped; half of flows may restart within days</td></tr>
+<tr><td class="co">Bodal Chemicals</td><td>Own sulphuric acid capacity as Russia and China ban exports</td></tr>
+<tr><td class="co">Antelopus Selan Energy</td><td>Rising on crude; Duarmara field guided at 6,200 barrels a day at peak</td></tr>
+<tr><td class="co">Asian Energy Services</td><td>Linked to Oilmax, the partner in the Duarmara field</td></tr>
+<tr><td class="co">Gujarat Fluorochemicals</td><td>Leads Indian battery cathode and electrolyte work</td></tr>
+<tr><td class="co">Himadri Speciality Chemical</td><td>Cathode work and already selling anode graphite</td></tr>
+<tr><td class="co">BYD / CATL / Jinko</td><td>Building battery or solar plants in Brazil to meet local-content rules</td></tr>
+<tr class="grp"><td colspan="2">Pipes, projects and infrastructure</td></tr>
+<tr><td class="co">Man Industries</td><td>Linked to Saudi rebuilding</td></tr>
+<tr><td class="co">Maharashtra Seamless</td><td>Linked to Saudi rebuilding</td></tr>
+<tr><td class="co">Welspun Corp</td><td>Linked to Saudi rebuilding; fell 9.8% on 15 September</td></tr>
+<tr><td class="co">Ratnamani Metals &amp; Tubes</td><td>Linked to Saudi rebuilding</td></tr>
+<tr><td class="co">VA Tech Wabag</td><td>Water projects linked to Saudi rebuilding; fell 7.7% on 15 September</td></tr>
+<tr><td class="co">Kalpataru Projects International</td><td>Linked to Saudi rebuilding</td></tr>
+<tr><td class="co">Larsen &amp; Toubro</td><td>Linked to Saudi rebuilding; traded lower on 16 September</td></tr>
+<tr><td class="co">PNC Infratech</td><td>Barred from NHAI bids for 3 years</td></tr>
+<tr><td class="co">Kanohar Electricals</td><td>Listed 8.5% higher, about 42 times profit; capacity to nearly double</td></tr>
+<tr class="grp"><td colspan="2">Defence and space</td></tr>
+<tr><td class="co">Bharat Dynamics</td><td>Co-producing a DRDO naval mine</td></tr>
+<tr><td class="co">Apollo Micro Systems</td><td>Naval mine and laser seeker licences</td></tr>
+<tr><td class="co">Ananth Technologies</td><td>Laser seeker licence</td></tr>
+<tr><td class="co">Premier Explosives</td><td>Missile propellant licence</td></tr>
+<tr><td class="co">Solar Defence &amp; Aerospace</td><td>Missile propellant licence</td></tr>
+<tr><td class="co">Solar Industries</td><td>Buying Omnia for $1.35 billion; shares fell 13.6%</td></tr>
+<tr><td class="co">Mazagon Dock Shipbuilders</td><td>₹27,000 crore shipyard planned at Dighi</td></tr>
+<tr><td class="co">Kavveri Defence &amp; Wireless</td><td>₹22.2 crore orders against almost no past revenue</td></tr>
+<tr><td class="co">Bellatrix Aerospace</td><td>Making parts for 2 Japanese firms</td></tr>
+<tr class="grp"><td colspan="2">Autos, industrials and new listings</td></tr>
+<tr><td class="co">Tata Motors</td><td>33% share of electric goods vehicles</td></tr>
+<tr><td class="co">Euler Motors</td><td>20% share of electric goods vehicles</td></tr>
+<tr><td class="co">Hero Motors</td><td>IPO at 93 times profit; 36% of sales from 1 customer</td></tr>
+<tr><td class="co">Schaeffler India</td><td>Sees little gain from the EU trade deal</td></tr>
+<tr><td class="co">Ratnaveer Precision</td><td>Entering copper clad laminate; targets ₹750 crore from 5 lines</td></tr>
+<tr><td class="co">Tempsens Instruments</td><td>Revenue +33%, margin down to 20% as staff costs rose</td></tr>
+<tr><td class="co">Bikewo Green Tech</td><td>₹66.46 crore estimated, non-binding contract to 2033</td></tr>
+<tr><td class="co">Reliance Industries</td><td>Customer for Bikewo's electric tractors and operations</td></tr>
+<tr class="grp"><td colspan="2">Consumer and jobs</td></tr>
+<tr><td class="co">Apple</td><td>Raised prices on phones already on sale due to memory costs</td></tr>
+<tr><td class="co">Itel / Lava</td><td>Bringing back 2–3GB RAM phones at ₹8,000–9,000</td></tr>
+<tr><td class="co">Cashify</td><td>Apple is 65.3% of its refurbished phone sales</td></tr>
+<tr><td class="co">IDC</td><td>Sub-₹10,000 phone shipments fell 74.3%</td></tr>
+<tr><td class="co">Dabur</td><td>Profit growth since 2020 slower than inflation</td></tr>
+<tr><td class="co">Naukri</td><td>Job postings up 14%; AI jobs up 31%</td></tr>
+<tr class="grp"><td colspan="2">Global technology</td></tr>
+<tr><td class="co">OpenAI</td><td>Talks to raise at over $1.2 trillion; margin fell</td></tr>
+<tr><td class="co">Google Cloud</td><td>Says AI servers pay back in under 2 years</td></tr>
+<tr><td class="co">SemiAnalysis</td><td>Finds only about 1.5 GW actually delayed by local bans</td></tr>
+<tr><td class="co">Anthropic</td><td>Its chief has called for pacing AI development</td></tr>
+<tr><td class="co">Meta</td><td>Delayed its Muse agent for safety; argues for speed</td></tr>
+<tr><td class="co">Nvidia</td><td>Says no new AI laws are needed</td></tr>
+<tr><td class="co">Amazon</td><td>Cloud sites in Bahrain and the UAE beyond saving</td></tr>
+<tr><td class="co">ByteDance</td><td>Raised a $29.6 billion unsecured loan for AI</td></tr>
+</tbody></table></div>
+</div>
+</section>
+<section id="s12">
+<div class="sec-head"><span class="num">12</span><h2>Words explained</h2></div>
+<p class="deck">Every technical term used above, in 1 sentence each.</p>
+<div class="body">
+<div class="glossary">
+<div class="g"><b>Anchor investor</b><span>A large fund that agrees to buy IPO shares a day before the public offer opens.</span></div>
+<div class="g"><b>Anode, cathode, electrolyte</b><span>The 3 main parts of a battery cell: the 2 ends where charge is stored and the liquid that carries charge between them.</span></div>
+<div class="g"><b>Basis point</b><span>A hundredth of a percentage point, so 25 basis points is 0.25%.</span></div>
+<div class="g"><b>Bond yield</b><span>The yearly return a lender demands to lend money to a government or company for a set time.</span></div>
+<div class="g"><b>Brent crude</b><span>The main world benchmark price for crude oil.</span></div>
+<div class="g"><b>Caveat (court)</b><span>A notice asking a court not to pass any order in a matter without first hearing the person who filed it.</span></div>
+<div class="g"><b>CBDC</b><span>Central bank digital currency, a digital form of the rupee issued by the RBI.</span></div>
+<div class="g"><b>Copper clad laminate</b><span>A sheet of insulating board covered in copper, the base material for circuit boards.</span></div>
+<div class="g"><b>Core investment company</b><span>A company that mainly holds shares in its own group firms and is regulated by the RBI.</span></div>
+<div class="g"><b>Correlation</b><span>How closely 2 numbers move together; 3.5% means almost no link.</span></div>
+<div class="g"><b>CPI inflation</b><span>The yearly rise in the prices that households pay, the RBI's main inflation measure.</span></div>
+<div class="g"><b>Crack spread</b><span>The gap between the price of a refined fuel like diesel and the crude oil it is made from.</span></div>
+<div class="g"><b>Defense Production Act</b><span>A US emergency law that lets the government direct companies to produce vital goods.</span></div>
+<div class="g"><b>Dispatches</b><span>Vehicles sent from factories to dealers, not the same as sales to customers.</span></div>
+<div class="g"><b>Dollar index</b><span>A measure of the US dollar against a basket of major currencies.</span></div>
+<div class="g"><b>Dovish</b><span>Leaning towards lower interest rates.</span></div>
+<div class="g"><b>EBITDA</b><span>Profit before interest, tax and write-offs for wear and tear.</span></div>
+<div class="g"><b>Embedded value</b><span>An actuary's estimate of what an insurer's existing policies are worth to shareholders.</span></div>
+<div class="g"><b>EPFO</b><span>The Employees' Provident Fund Organisation, which runs compulsory retirement savings for salaried workers.</span></div>
+<div class="g"><b>FCNR(B)</b><span>Foreign-currency deposits that Indians abroad keep with Indian banks.</span></div>
+<div class="g"><b>Federal Reserve</b><span>The US central bank, which sets the main US interest rate.</span></div>
+<div class="g"><b>Gigawatt (GW)</b><span>1,000 megawatts, roughly the output of a large power station.</span></div>
+<div class="g"><b>Gilt</b><span>A UK government bond.</span></div>
+<div class="g"><b>GST</b><span>Goods and Services Tax, India's main tax on sales.</span></div>
+<div class="g"><b>Input tax credit</b><span>The right to deduct the GST paid on costs from the GST owed on sales.</span></div>
+<div class="g"><b>IPO</b><span>Initial public offering, when a company first sells shares to the public.</span></div>
+<div class="g"><b>Leverage</b><span>Using borrowed money to buy assets, which magnifies both gains and losses.</span></div>
+<div class="g"><b>Margin call</b><span>A broker's demand for more cash when shares bought with a loan fall in value.</span></div>
+<div class="g"><b>MDR</b><span>Merchant Discount Rate, the small cut of a payment that a shop pays to the banks and apps that process it.</span></div>
+<div class="g"><b>Microcap</b><span>A very small listed company, usually the most volatile part of the market.</span></div>
+<div class="g"><b>Moratorium</b><span>A temporary ban, here on approving new data centres.</span></div>
+<div class="g"><b>MVA</b><span>Mega volt-ampere, a unit for the capacity of electrical transformers.</span></div>
+<div class="g"><b>NBFC</b><span>Non-bank finance company, a lender that is not a bank.</span></div>
+<div class="g"><b>Neutral rate</b><span>The interest rate that neither speeds up nor slows down the economy.</span></div>
+<div class="g"><b>NPCI</b><span>National Payments Corporation of India, which runs UPI.</span></div>
+<div class="g"><b>P/E ratio</b><span>Share price divided by profit per share; how many years of current profit the price pays for.</span></div>
+<div class="g"><b>PMI</b><span>Purchasing Managers' Index, a monthly factory survey where a reading above 50 means growth.</span></div>
+<div class="g"><b>Premium (insurance)</b><span>The amount a customer pays for an insurance policy.</span></div>
+<div class="g"><b>RCMC</b><span>Registration-cum-Membership Certificate, a registration exporters needed to claim benefits.</span></div>
+<div class="g"><b>Real yield</b><span>A bond yield after subtracting inflation.</span></div>
+<div class="g"><b>Refurbished phone</b><span>A used phone that has been checked, repaired and resold.</span></div>
+<div class="g"><b>Renewal revenue</b><span>Income earned again each year when an existing policy is renewed.</span></div>
+<div class="g"><b>Retail inflation target</b><span>The RBI aims to keep CPI inflation at 4%.</span></div>
+<div class="g"><b>Reverse repo auction</b><span>A way for the RBI to take spare cash from banks for a short time, paying them interest.</span></div>
+<div class="g"><b>Strait of Hormuz</b><span>The narrow channel between Iran and Oman that carries much of the Gulf's oil.</span></div>
+<div class="g"><b>Strategic Petroleum Reserve</b><span>The emergency crude oil stock kept by the US government.</span></div>
+<div class="g"><b>Swap window</b><span>A scheme where the RBI swaps dollars for rupees with banks at a set rate.</span></div>
+<div class="g"><b>Technology licence</b><span>Permission for a company to make a product designed by someone else, here by DRDO.</span></div>
+<div class="g"><b>Trade deficit</b><span>The amount by which a country's imports exceed its exports.</span></div>
+<div class="g"><b>Treasury auction tail</b><span>How far the final yield at a US bond sale lands above what the market expected; a bigger tail means weaker demand.</span></div>
+<div class="g"><b>Unsecured loan</b><span>A loan with no specific asset pledged against it.</span></div>
+<div class="g"><b>UPI</b><span>Unified Payments Interface, India's instant mobile payment system.</span></div>
+<div class="g"><b>Weekly options</b><span>Contracts to buy or sell an index at a set price that expire each week.</span></div>
+</div>
+</div>
+</section>
+<div class="foot">
+  <p>Reported facts and analysis are woven together here rather than separated into boxes. Where a conclusion is drawn across sources — a connection no single source stated on its own — the sentence says so with words like "so", "which means" or "the reason is". Figures are as reported by the sources being summarised and have not been independently audited, except where checked against official data and noted as such in the text.</p>
+</div>
+<div class="disclaimer">
+  <div class="dh">
+    <span>Please read this before you use anything above</span>
+  </div>
+  <p><strong>This is a daily educational newsletter written for one small group of readers, nothing more.</strong> It is not research sold to anybody, it is not a service and it is not a product. Nothing here is a recommendation to buy, sell or hold anything, and where something is labelled bullish, bearish or mixed that describes the mood of the material that was read rather than a view on the company or advice to you. Please keep it private and do not forward, post, publish or quote it outside the group. It is generated with the help of AI, so numbers can be misread and an original source can simply be wrong. If anything looks out of place, check it yourself before acting on it, and speak to a registered adviser before making any financial decision.</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement,
+      btn  = document.getElementById('themetog'),
+      KEY  = 'ngid-theme';
+
+  function read()  { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function write(v){ try { localStorage.setItem(KEY, v); }    catch (e) {} }
+
+  var saved = read();
+  if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function current() {
+    var set = root.getAttribute('data-theme');
+    if (set === 'dark' || set === 'light') return set;
+    return (mq && mq.matches) ? 'dark' : 'light';
+  }
+
+  function paint() {
+    var now = current();
+    btn.setAttribute('data-mode', now);
+    btn.setAttribute('aria-label',
+      now === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    btn.setAttribute('title',
+      now === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    write(next);
+    paint();
+  });
+
+  if (mq) {
+    var onSys = function () { if (!read()) paint(); };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+
+  paint();
+})();
+</script>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!('IntersectionObserver' in window)||!links.length) return;
+  var map={}; links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){links.forEach(function(a){a.classList.remove('on');});
+        var a=map[e.target.id]; if(a) a.classList.add('on');}
+    });
+  },{rootMargin:'-10% 0px -70% 0px'});
+  document.querySelectorAll('.main section').forEach(function(s){obs.observe(s);});
+})();
+</script>
+
+</body>
+</html>
